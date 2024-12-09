@@ -5,11 +5,15 @@ import os
 from openai import OpenAI
 
 # .envファイルを読み込む
-load_dotenv()
+# load_dotenv()
 
 client = OpenAI()
+
 # 環境変数からAPIキーを取得
-OpenAI.api_key = os.getenv("OPENAI_API_KEY")
+# OpenAI.api_key = os.getenv("OPENAI_API_KEY")
+
+# シークレットからAPIキーを取得
+OpenAI.api_key  = st.secrets["API"]
 
 st.title("（仮）画像認識アプリ") # タイトル表示
 explanation = "ここに画像をアップロードしてください。"
