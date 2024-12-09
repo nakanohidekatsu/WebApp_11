@@ -13,7 +13,7 @@ client = OpenAI()
 # OpenAI.api_key = os.getenv("OPENAI_API_KEY")
 
 # シークレットからAPIキーを取得
-OpenAI.api_key  = st.secrets["API"]
+OpenAI.api_key  = st.secrets["OPENAI_API_KEY"]
 
 st.title("（仮）画像認識アプリ") # タイトル表示
 explanation = "ここに画像をアップロードしてください。"
