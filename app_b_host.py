@@ -53,7 +53,7 @@ def rakuten_picurl(syouhin):
         url = result['Items'][0]['Item']['mediumImageUrls'][0]['imageUrl']
         return url
 
-st.title("（仮）画像認識アプリ") # タイトル表示
+st.title("Select Asahi!") # タイトル表示
 
 # 選択肢を作成
 city_code_list = {
