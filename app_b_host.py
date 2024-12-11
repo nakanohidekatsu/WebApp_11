@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 import base64
 import os
 from openai import OpenAI
+import requests # リクエストするための機能をインポート
+from datetime import datetime # 現在時刻などの時間を扱う機能をインポート
 
 # .envファイルを読み込む
 load_dotenv()
@@ -12,6 +14,104 @@ client = OpenAI()
 OpenAI.api_key = os.getenv("OPENAI_API_KEY")
 
 st.title("（仮）画像認識アプリ") # タイトル表示
+
+# 選択肢を作成
+city_code_list = {
+    "東京都" : "130010",
+    "旭川" : "012010",
+    "帯広" : "014030",
+    "函館" : "017010",
+    "青森" : "020010",
+    "盛岡" : "030010",
+    "仙台"  : "040010",
+    "秋田" : "050010",
+    "山形" : "060010",
+    "福島" : "070010",
+    "水戸" : "080010",
+    "宇都宮" : "090010",
+    "前橋" : "100010",
+    "さいたま" : "110010",
+    "千葉" : "120010",
+    "横浜" : "140010",
+    "新潟" : "150010",
+    "富山" : "160010",
+    "金沢" : "170010",
+    "福井" : "180010",
+    "甲府" : "190010",
+    "長野" : "200010",
+    "岐阜" : "210010",
+    "静岡" : "220010",
+    "名古屋" : "230010",
+    "津" : "240010",
+    "彦根" : "250020",
+    "京都" : "260010",
+    "大阪" : "270000",
+    "神戸" : "280010",
+    "奈良" : "290010",
+    "和歌山" : "300010",
+    "鳥取" : "310010",
+    "松江" : "320010",
+    "岡山" : "330010",
+    "広島" : "340010",
+    "山口" : "350020",
+    "徳島" : "360010",
+    "高松" : "370000",
+    "松山" : "380010",
+    "高知" : "390010",
+    "福岡" : "400010",
+    "佐賀" : "410010",
+    "長崎" : "420010",
+    "熊本" : "430010",
+    "大分" : "440010",
+    "宮崎" : "450010",
+    "鹿児島" : "460010",
+    "那覇" : "471010",
+}
+# 選択肢のデフォルトを設定
+city_code_index = "東京都"
+
+
+st.write("調べたい地域を選んでください。") # サブタイトル
+city_code_index = st.selectbox("地域を選んでください。",city_code_list.keys()) # 選択肢のキーをst.selectboxで選択し、city_code_indexに代入
+city_code = city_code_list[city_code_index] # 選択したキーからAPIのリクエストに使うcityコードに変換し、city_codeに代入
+current_city_code = st.empty() # 選択中の地域を補油時するための箱をcurrent_city_codeとして用意
+current_city_code.write("選択中の地域:" + city_code_index) # 用意した箱に選択肢した地域を代入し、表示させる
+
+url = "https://weather.tsukumijima.net/api/forecast/city/" + city_code # APIにリクエストするURLを作成
+
+
+response = requests.get(url) # 作成したリクエスト用URLでアクセスして、responseに代入
+
+weather_json = response.json() # responseにjson形式の天気のデータが返ってくるので、response.json()をweather_jsonに代入
+now_hour = datetime.now().hour # 現在の天気情報取得のために、現在時刻の時間をnow_hourに代入
+
+# 今日の天気はweather_json['forecasts'][0]['chanceOfRain']
+# 明日の天気はweather_json['forecasts'][1]['chanceOfRain']
+# 明後日の天気はweather_json['forecasts'][2]['chanceOfRain']
+# にそれぞれ格納されている
+
+# 晴れの情報を取ってくる
+weather0_now = weather_json['forecasts'][0]['telop']# 今日の天気を取得し、weather0_nowに代入
+# 現在時刻の天気をweather0_now_textに代入
+weather0_now_text = "今日の天気 : " + weather0_now
+st.write(weather0_now_text) # 今日の天気を表示
+
+
+# 天気の情報を0-6時、6-12時、12-18時、18-24時の4つに分けて降水確率を今日、明日、明後日の３日間の天気を返すため、場合分けする。
+if 0 <= now_hour and now_hour < 6:
+    weather_now = weather_json['forecasts'][0]['chanceOfRain']['T00_06'] # 今日の0-6時の降水確率を取得し、weather_nowに代入
+elif 6 <= now_hour and now_hour < 12:
+    weather_now = weather_json['forecasts'][0]['chanceOfRain']['T06_12'] # 今日の6-12時の降水確率を取得し、weather_nowに代入
+elif 12 <= now_hour and now_hour < 18:
+    weather_now = weather_json['forecasts'][0]['chanceOfRain']['T12_18'] # 今日の12-18時の降水確率を取得し、weather_nowに代入
+else:
+    weather_now = weather_json['forecasts'][0]['chanceOfRain']['T18_24'] # 今日の18-24時の降水確率を取得し、weather_nowに代入
+
+# 現在時刻の降水確率をweather_now_textに代入
+weather_now_text = "現在の降水確率 : " + weather_now
+st.write(weather_now_text) # 現在時刻の降水確率を表示
+
+# 風景写真をアップ
 explanation = "ここに画像をアップロードしてください。"
 file_upload = st.file_uploader(explanation,type=["png","jpg","gif"]) # tesseractが認識できるpngとjpgだけを許可するアップローダーの設置
 
