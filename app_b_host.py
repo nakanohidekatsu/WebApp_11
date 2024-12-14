@@ -7,7 +7,7 @@ from PIL import Image
 import urllib.parse
 import requests # リクエストするための機能をインポート
 from datetime import datetime # 現在時刻などの時間を扱う機能をインポート
-from langfuse.openai import openai # OpenAI integration
+# from langfuse.openai import openai # OpenAI integration
 
 
 # ページタイトルなど設定
